@@ -16,7 +16,7 @@ func CLI() {
 	}
 
 	// Ask the user for the output file path
-	fmt.Print("Enter the path to the output file (leave empty to print to console): ")
+	fmt.Print("Enter the path to the output file: ")
 	var outputFile string
 	_, err = fmt.Scanln(&outputFile)
 	if err != nil {

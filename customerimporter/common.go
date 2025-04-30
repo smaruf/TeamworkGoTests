@@ -13,7 +13,7 @@ const (
 	MinRecords = 1000
 	MaxRecords = 1000000
 	ChunkSize  = 1000
-	FieldCount = 5 // Updated to match the number of fields in customers.csv
+	FieldCount = 5
 )
 
 type Record struct {

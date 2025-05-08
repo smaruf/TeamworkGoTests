@@ -16,7 +16,7 @@ func CLI() {
 	}
 
 	// Ask the user for the output file path
-	fmt.Print("Enter the path to the output file: ")
+	fmt.Print("Enter the path to the output file: (console for output in terminal)")
 	var outputFile string
 	_, err = fmt.Scanln(&outputFile)
 	if err != nil {
@@ -51,7 +51,7 @@ func CLI() {
 			log.Fatalf("Error in concurrent-streaming processing: %v", err)
 		}
 		outputData := sortDomains(domainCounts)
-		writeOutput(outputData, outputFile)
+		
 	default:
 		log.Println("Running in single-threaded mode...")
 		domainCounts, err = Process(inputFile, outputFile)
@@ -61,7 +61,7 @@ func CLI() {
 	}
 
 	// Handle output
-	if outputFile == "" {
+	if outputFile == "console" {
 		// Print results to the console
 		fmt.Println("Processing completed. Results:")
 		for domain, count := range domainCounts {
@@ -69,6 +69,7 @@ func CLI() {
 		}
 	} else {
 		// Write results to the output file
+		writeOutput(outputData, outputFile)
 		log.Printf("Processing completed successfully. Output written to %s", outputFile)
 	}
 }

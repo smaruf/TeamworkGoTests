@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"regexp"
 	"sort"
 	"strings"
 )
@@ -24,14 +25,22 @@ type Record struct {
 	IPAddress string
 }
 
-// Common Functions
+// Regex pattern for validating email domains
+var domainRegex = regexp.MustCompile(`^[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$`)
+
+// Enhanced extractDomain with regex validation
 func extractDomain(email string) string {
 	at := strings.Index(email, "@")
 	if at == -1 {
-		log.Printf("Invalid email address: %s", email) // Log invalid email addresses
+		log.Printf("Invalid email address (missing '@'): %s", email)
 		return ""
 	}
-	return email[at+1:]
+	domain := email[at+1:]
+	if !domainRegex.MatchString(domain) {
+		log.Printf("Invalid email domain: %s", domain)
+		return ""
+	}
+	return domain
 }
 
 func createRecord(fields []string) (Record, error) {
@@ -67,7 +76,7 @@ func countEmailDomains(records []Record) map[string]int {
 	for _, record := range records {
 		domain := extractDomain(record.Email)
 		if domain == "" {
-			log.Printf("Skipping record with invalid email: %s", record.Email) // Log skipped records
+			log.Printf("Skipping record with invalid email: %s", record.Email)
 			continue
 		}
 		domainCounts[domain]++
@@ -76,7 +85,7 @@ func countEmailDomains(records []Record) map[string]int {
 	return domainCounts
 }
 
-// Sorting and Output
+// Refactored sortDomains for clarity
 func sortDomains(domainCounts map[string]int) []string {
 	domains := make([]string, 0, len(domainCounts))
 	for domain := range domainCounts {
@@ -90,13 +99,15 @@ func sortDomains(domainCounts map[string]int) []string {
 		return domainCounts[domains[i]] > domainCounts[domains[j]] // Descending order by count
 	})
 
+	// Format domains with their counts
 	for i, domain := range domains {
-		domains[i] = fmt.Sprintf("%s: %d", domain, domainCounts[domain]) // Append count with domain
+		domains[i] = fmt.Sprintf("%s: %d", domain, domainCounts[domain])
 	}
 
 	return domains
 }
 
+// Improved writeOutput with standardized newline
 func writeOutput(sortedDomains []string, outputFileName string) error {
 	// Create or overwrite the output file
 	file, err := os.Create(outputFileName)
@@ -107,7 +118,7 @@ func writeOutput(sortedDomains []string, outputFileName string) error {
 
 	// Write sorted domains to the file
 	for _, domain := range sortedDomains {
-		if _, err := file.WriteString(fmt.Sprintf("%s\n\r", domain)); err != nil {
+		if _, err := file.WriteString(fmt.Sprintf("%s\n", domain)); err != nil {
 			return fmt.Errorf("error writing to output file: %v", err)
 		}
 	}

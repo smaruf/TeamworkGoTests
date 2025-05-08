@@ -3,7 +3,6 @@ package customerimporter
 import (
 	"os"
 	"reflect"
-	"strings"
 	"testing"
 )
 
@@ -25,9 +24,9 @@ func TestProcess(t *testing.T) {
 		t.Fatalf("Failed to read output file: %v", err)
 	}
 
-	expectedOutput := "example.com"
-	if !strings.Contains(string(outputData), expectedOutput) {
-		t.Errorf("Output file does not contain expected output. Got = %q; want it to contain %q", string(outputData), expectedOutput)
+	expectedOutput := "example.com\nanother.com\n"
+	if string(outputData) != expectedOutput {
+		t.Errorf("Output file does not match expected output. Got = %q; want %q", string(outputData), expectedOutput)
 	}
 }
 
@@ -105,8 +104,28 @@ func TestWriteOutput(t *testing.T) {
 		t.Fatalf("Failed to read output file: %v", err)
 	}
 
-	expected := "example.com\n\ranother.com\n\r"
+	expected := "example.com\nanother.com\n"
 	if string(data) != expected {
 		t.Errorf("writeOutput() = %q; want %q", string(data), expected)
+	}
+}
+
+func TestReadCSV_EmptyFile(t *testing.T) {
+	// Create an empty temporary CSV file
+	file, err := os.CreateTemp("", "empty_test.csv")
+	if err != nil {
+		t.Fatalf("Failed to create temporary file: %v", err)
+	}
+	defer os.Remove(file.Name())
+
+	// Run the readCSV function
+	records, err := readCSV(file.Name())
+	if err != nil {
+		t.Errorf("readCSV() returned an error for empty file: %v", err)
+	}
+
+	// Verify the records
+	if len(records) != 0 {
+		t.Errorf("readCSV() returned %d records; want 0 for empty file", len(records))
 	}
 }

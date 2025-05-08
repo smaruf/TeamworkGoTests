@@ -11,9 +11,10 @@ func TestExtractDomain(t *testing.T) {
 		expected string
 	}{
 		{"user@example.com", "example.com"},
-		{"invalid-email", ""},
-		{"", ""},
+		{"invalid-email", ""}, // Invalid email should return an empty string
+		{"", ""},              // Empty email should return an empty string
 		{"user@subdomain.example.com", "subdomain.example.com"},
+		{"user@.com", ""}, // Invalid domain should return an empty string
 	}
 
 	for _, test := range tests {
@@ -26,7 +27,7 @@ func TestExtractDomain(t *testing.T) {
 
 func TestCreateRecord(t *testing.T) {
 	validFields := []string{"John", "Doe", "john.doe@example.com", "1234567890", "123 Main St", "City", "State", "12345", "Country", "Company", "Job Title", "www.example.com", "Notes"}
-	invalidFields := []string{"John", "Doe", "john.doe@example.com"} // Less than FieldCount
+	invalidFields := []string{"John", "Doe", "john.doe@example.com"} // Less than required fields
 
 	// Test valid record creation
 	record, err := createRecord(validFields)
@@ -74,7 +75,7 @@ func TestCountEmailDomains(t *testing.T) {
 		{Email: "user1@example.com"},
 		{Email: "user2@example.com"},
 		{Email: "user3@another.com"},
-		{Email: "invalid-email"},
+		{Email: "invalid-email"}, // Invalid email should be ignored
 	}
 
 	expected := map[string]int{

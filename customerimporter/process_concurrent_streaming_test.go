@@ -19,6 +19,7 @@ func TestProcessWithConcurrentStreaming(t *testing.T) {
 	data := `FirstName,LastName,Email,Phone,Address,City,State,Zip,Country,Company,JobTitle,Website,Notes
 John,Doe,john.doe@example.com,1234567890,123 Main St,City,State,12345,Country,Company,Job Title,www.example.com,Notes
 Jane,Smith,jane.smith@example.com,9876543210,456 Elm St,City,State,67890,Country,Company,Job Title,www.example.com,Notes
+Invalid,User,invalid-email,0000000000,789 Pine St,City,State,11111,Country,Company,Job Title,www.example.com,Notes
 `
 	if _, err := file.WriteString(data); err != nil {
 		t.Fatalf("Failed to write to temporary file: %v", err)
@@ -37,6 +38,27 @@ Jane,Smith,jane.smith@example.com,9876543210,456 Elm St,City,State,67890,Country
 	expected := map[string]int{
 		"example.com": 2,
 	}
+	if !reflect.DeepEqual(result, expected) {
+		t.Errorf("ProcessWithConcurrentStreaming() = %v; want %v", result, expected)
+	}
+}
+
+func TestProcessWithConcurrentStreaming_EmptyFile(t *testing.T) {
+	// Create an empty temporary CSV file
+	file, err := os.CreateTemp("", "empty_test.csv")
+	if err != nil {
+		t.Fatalf("Failed to create temporary file: %v", err)
+	}
+	defer os.Remove(file.Name())
+
+	// Run the ProcessWithConcurrentStreaming function
+	result, err := ProcessWithConcurrentStreaming(file)
+	if err != nil {
+		t.Errorf("ProcessWithConcurrentStreaming() returned an error for empty file: %v", err)
+	}
+
+	// Verify the results
+	expected := map[string]int{}
 	if !reflect.DeepEqual(result, expected) {
 		t.Errorf("ProcessWithConcurrentStreaming() = %v; want %v", result, expected)
 	}
